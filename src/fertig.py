@@ -38,13 +38,13 @@ def update_leds(q):
         colors = q.get()
         for i in range(LED_COUNT):
             if(i >= 150):
-                pixels[i] = bgr_to_rgb(colors[40-1, i - 150].tolist())
+                pixels[i] = bgr_to_rgb(np.mean(colors[39:27, i - 150].tolist()))
             elif(i >= 110):
-                pixels[i] = bgr_to_rgb(colors[i - 110, 70-1].tolist())
+                pixels[i] = bgr_to_rgb(np.mean(colors[i - 110, 69:49].tolist()))
             elif(i >= 40):
-                pixels[i] = bgr_to_rgb(colors[1-1, i - 40].tolist())
+                pixels[i] = bgr_to_rgb(np.mean(colors[0:12, i - 40].tolist()))
             else:
-                pixels[i] = bgr_to_rgb(colors[i, 1-1].tolist())
+                pixels[i] = bgr_to_rgb(np.mean(colors[i, 0:20].tolist()))
         pixels.show()
         print("LEDs Updated")
 
