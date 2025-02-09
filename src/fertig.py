@@ -45,16 +45,16 @@ def update_leds(q):
             colors = q.get_nowait()
             for i in range(LED_COUNT):
                 if(i >= 150):
-                    color = colors[i - 150, 36]
+                    color = colors[36, i - 150]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= 110):
-                    color = colors[66, i - 110]
+                    color = colors[i - 110, 66]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= 40):
-                    color = colors[i - 40, 3]
+                    color = colors[3, i - 40]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 else:
-                    color = colors[3, i]
+                    color = colors[i, 3]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
             pixels.show()
             print("LEDs Updated")
