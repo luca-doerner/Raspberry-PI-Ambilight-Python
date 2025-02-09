@@ -11,6 +11,8 @@ LED_COUNT = 220
 PIN = board.D18
 LED_BRIGHTNESS = 0.7
 
+WAIT = 0.01;
+
 # Initialize NeoPixel object
 pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=0.7, auto_write=False)
 
@@ -31,22 +33,27 @@ def get_dominant_color(q):
         resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
         print(resized[0,0].tolist())
         q.put(resized)
+        time.sleep(WAIT)
 
 def update_leds(q):
     """ LEDs aktualisieren """
     while True:
-        colors = q.get()
-        for i in range(LED_COUNT):
-            if(i >= 150):
-                pixels[i] = bgr_to_rgb(np.mean(colors[39:27, i - 150].tolist()))
-            elif(i >= 110):
-                pixels[i] = bgr_to_rgb(np.mean(colors[i - 110, 69:49].tolist()))
-            elif(i >= 40):
-                pixels[i] = bgr_to_rgb(np.mean(colors[0:12, i - 40].tolist()))
-            else:
-                pixels[i] = bgr_to_rgb(np.mean(colors[i, 0:20].tolist()))
-        pixels.show()
-        print("LEDs Updated")
+        try:
+            colors = q.get_nowait()
+            for i in range(LED_COUNT):
+                if(i >= 150):
+                    pixels[i] = bgr_to_rgb(np.mean(colors[39:27, i - 150].tolist()))
+                elif(i >= 110):
+                    pixels[i] = bgr_to_rgb(np.mean(colors[i - 110, 69:49].tolist()))
+                elif(i >= 40):
+                    pixels[i] = bgr_to_rgb(np.mean(colors[0:12, i - 40].tolist()))
+                else:
+                    pixels[i] = bgr_to_rgb(np.mean(colors[i, 0:20].tolist()))
+            pixels.show()
+            print("LEDs Updated")
+        except queue.Empty:
+            pass
+        time.sleep(WAIT)
 
 def bgr_to_rgb(color):
     return (color[2], color[0], color[1])
