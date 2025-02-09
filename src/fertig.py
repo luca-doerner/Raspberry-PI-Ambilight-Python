@@ -29,6 +29,7 @@ def get_dominant_color(q):
     while True:
         ret, frame = cap.read()
         resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
+        print(resized[0,0].tolist())
         q.put(resized)
 
 def update_leds(q):
@@ -37,15 +38,18 @@ def update_leds(q):
         colors = q.get()
         for i in range(LED_COUNT):
             if(i >= 150):
-                pixels[i] = colors[i - 150-1, 40-1]
+                pixels[i] = bgr_to_rgb(colors[40-1, i - 150].tolist())
             elif(i >= 110):
-                pixels[i] = colors[70-1, i - 110-1]
+                pixels[i] = bgr_to_rgb(colors[i - 110, 70-1].tolist())
             elif(i >= 40):
-                pixels[i] = colors[i - 40-1, 1-1]
+                pixels[i] = bgr_to_rgb(colors[1-1, i - 40].tolist())
             else:
-                pixels[i] = colors[1-1, i]
+                pixels[i] = bgr_to_rgb(colors[i, 1-1].tolist())
         pixels.show()
         print("LEDs Updated")
+
+def bgr_to_rgb(color):
+    return (color[2], color[0], color[1])
 
 if __name__ == "__main__":
     q = mp.Queue()
