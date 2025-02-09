@@ -1,0 +1,10 @@
+- name: Deploy Application
+  hosts: raspberrypi
+  become: yes
+  tasks:
+    - name: Deploy built application
+      copy:
+        src: ../src/fertig.py
+        dest: /home/luca/Ambilight/
+        owner: luca
+        group: luca
