@@ -30,12 +30,12 @@ def get_screen(q):
         exit()
     q.put(frame)
 
-def get_dominant_color(q):
-    while True:
-        frame = q_in.get()
-        resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
-        print(resized[0,0].tolist())
-        q_out.put(resized)
+def get_dominant_color(q_in, q_out):
+    frame = q_in.get()
+    resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
+    print(resized[0,0].tolist())
+    cv2.imwrite("resized_image.jpg", resized)
+    q_out.put(resized)
 
 def update_leds(q):
     """ LEDs aktualisieren """
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     q_screen = mp.Queue()
     q_colors = mp.Queue()
 
-    p1 = mp.Process(target=get_dominant_color, args=(q_screen,))
+    p1 = mp.Process(target=get_screen, args=(q_screen,))
     p2 = mp.Process(target=get_dominant_color, args=(q_screen, q_colors))
     p3 = mp.Process(target=update_leds, args=(q_colors,))
 
