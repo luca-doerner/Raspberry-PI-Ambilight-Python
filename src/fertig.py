@@ -5,6 +5,7 @@ import time
 import mss
 import numpy as np
 import cv2
+import queue
 
 # LED-Konfiguration (Anpassen an dein Setup)
 LED_COUNT = 220
@@ -42,21 +43,21 @@ def update_leds(q):
             colors = q.get_nowait()
             for i in range(LED_COUNT):
                 if(i >= 150):
-                    pixels[i] = bgr_to_rgb(np.mean(colors[39:27, i - 150], axis=(0, 1)).tolist())
+                    pixels[i] = bgr_to_rgb(np.mean(colors[27:39, i - 150], axis=(0, 1)).tolist())
                 elif(i >= 110):
-                    pixels[i] = bgr_to_rgb(np.mean(colors[i - 110, 69:49], axis=(0, 1)).tolist())
+                    pixels[i] = bgr_to_rgb(np.mean(colors[i - 110, 49:69], axis=(0, 1)).tolist())
                 elif(i >= 40):
                     pixels[i] = bgr_to_rgb(np.mean(colors[0:12, i - 40], axis=(0, 1)).tolist())
                 else:
                     pixels[i] = bgr_to_rgb(np.mean(colors[i, 0:20], axis=(0, 1)).tolist())
             pixels.show()
             print("LEDs Updated")
-        except queue.Empty:
+        except mp.Queue.Empty:
             pass
         time.sleep(WAIT)
 
 def bgr_to_rgb(color):
-    return (color[2], color[0], color[1])
+    return (round(color[2]), round(color[0]), round(color[1]))
 
 if __name__ == "__main__":
     q = mp.Queue()
