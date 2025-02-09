@@ -12,7 +12,7 @@ LED_COUNT = 220
 PIN = board.D18
 LED_BRIGHTNESS = 0.7
 
-WAIT = 0.01;
+WAIT = 0.01
 
 # Initialize NeoPixel object
 pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=0.7, auto_write=False)
@@ -23,18 +23,19 @@ if not cap.isOpened():
     print("Fehler: HDMI-Capture-Device nicht gefunden!")
     exit()
 
-def get_dominant_color(q):
+def get_screen(q):
     ret, frame = cap.read()
     if not ret:
         print("Kein HDMI-Signal!")
-        return
+        exit()
+    q.put(frame)
 
+def get_dominant_color(q):
     while True:
-        ret, frame = cap.read()
+        frame = q_in.get()
         resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
         print(resized[0,0].tolist())
-        q.put(resized)
-        time.sleep(WAIT)
+        q_out.put(resized)
 
 def update_leds(q):
     """ LEDs aktualisieren """
@@ -43,35 +44,41 @@ def update_leds(q):
             colors = q.get_nowait()
             for i in range(LED_COUNT):
                 if(i >= 150):
-                    mean_color = np.mean(colors[27:39, i - 150], axis=(0, 1))
-                    pixels[i] = bgr_to_rgb(mean_color.tolist())  # Pass as list
+                    color = colors[39, i - 150]
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= 110):
-                    mean_color = np.mean(colors[i - 110, 49:69], axis=(0, 1))
-                    pixels[i] = bgr_to_rgb(mean_color.tolist())  # Pass as list
+                    color = colors[i - 110, 69]
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= 40):
-                    mean_color = np.mean(colors[0:12, i - 40], axis=(0, 1))
-                    pixels[i] = bgr_to_rgb(mean_color.tolist())  # Pass as list
+                    color = colors[0, i - 40]
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 else:
-                    mean_color = np.mean(colors[i, 0:20], axis=(0, 1))
-                    print(mean_color)
-                    pixels[i] = bgr_to_rgb(mean_color.tolist())  # Pass as list
+                    color = colors[i, 0]
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
             pixels.show()
             print("LEDs Updated")
+        except KeyboardInterrupt:
+            pixels.fill((0,0,0))
+            pixels.show()
+            exit()
         except mp.queues.Empty:
             pass
-        time.sleep(WAIT)
 
 def bgr_to_rgb(color):
     return (round(color[2]), round(color[0]), round(color[1]))
 
 if __name__ == "__main__":
-    q = mp.Queue()
+    q_screen = mp.Queue()
+    q_colors = mp.Queue()
 
-    p1 = mp.Process(target=get_dominant_color, args=(q,))
-    p2 = mp.Process(target=update_leds, args=(q,))
+    p1 = mp.Process(target=get_dominant_color, args=(q_screen,))
+    p2 = mp.Process(target=get_dominant_color, args=(q_screen, q_colors))
+    p3 = mp.Process(target=update_leds, args=(q_colors,))
 
     p1.start()
     p2.start()
+    p3.start()
 
     p1.join()
     p2.join()
+    p3.join()
