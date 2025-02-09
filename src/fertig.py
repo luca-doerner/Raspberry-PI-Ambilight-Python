@@ -42,13 +42,13 @@ def update_leds(q):
             colors = q.get_nowait()
             for i in range(LED_COUNT):
                 if(i >= 150):
-                    pixels[i] = bgr_to_rgb(np.mean(colors[39:27, i - 150].tolist()))
+                    pixels[i] = bgr_to_rgb(np.mean(colors[39:27, i - 150], axis=(0, 1)).tolist())
                 elif(i >= 110):
-                    pixels[i] = bgr_to_rgb(np.mean(colors[i - 110, 69:49].tolist()))
+                    pixels[i] = bgr_to_rgb(np.mean(colors[i - 110, 69:49], axis=(0, 1)).tolist())
                 elif(i >= 40):
-                    pixels[i] = bgr_to_rgb(np.mean(colors[0:12, i - 40].tolist()))
+                    pixels[i] = bgr_to_rgb(np.mean(colors[0:12, i - 40], axis=(0, 1)).tolist())
                 else:
-                    pixels[i] = bgr_to_rgb(np.mean(colors[i, 0:20].tolist()))
+                    pixels[i] = bgr_to_rgb(np.mean(colors[i, 0:20], axis=(0, 1)).tolist())
             pixels.show()
             print("LEDs Updated")
         except queue.Empty:
