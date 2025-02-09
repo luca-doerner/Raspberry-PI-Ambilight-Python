@@ -29,15 +29,17 @@ def get_screen(q):
         if not ret:
             print("Kein HDMI-Signal!")
             exit()
-        q.put(frame)
+        q.put_nowait(frame)
 
+#TODO: resized_height und resized_width -> einmal langegestreckt in die eine und dann in die anderen richtung
 def get_dominant_color(q_in, q_out):
     while True:
-        frame = q_in.get()
+        frame = q_in.get_nowait()
         resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
         print(resized[0,0].tolist())
-        q_out.put(resized)
+        q_out.put_nowait(resized)
 
+#TODO: leds immer updaten wenn neuer input
 def update_leds(q):
     """ LEDs aktualisieren """
     while True:
