@@ -43,16 +43,21 @@ def update_leds(q):
             colors = q.get_nowait()
             for i in range(LED_COUNT):
                 if(i >= 150):
-                    pixels[i] = bgr_to_rgb(np.mean(colors[27:39, i - 150], axis=(0, 1)).tolist())
+                    mean_color = np.mean(colors[27:39, i - 150], axis=(0, 1))
+                    pixels[i] = bgr_to_rgb(mean_color.tolist())  # Pass as list
                 elif(i >= 110):
-                    pixels[i] = bgr_to_rgb(np.mean(colors[i - 110, 49:69], axis=(0, 1)).tolist())
+                    mean_color = np.mean(colors[i - 110, 49:69], axis=(0, 1))
+                    pixels[i] = bgr_to_rgb(mean_color.tolist())  # Pass as list
                 elif(i >= 40):
-                    pixels[i] = bgr_to_rgb(np.mean(colors[0:12, i - 40], axis=(0, 1)).tolist())
+                    mean_color = np.mean(colors[0:12, i - 40], axis=(0, 1))
+                    pixels[i] = bgr_to_rgb(mean_color.tolist())  # Pass as list
                 else:
-                    pixels[i] = bgr_to_rgb(np.mean(colors[i, 0:20], axis=(0, 1)).tolist())
+                    mean_color = np.mean(colors[i, 0:20], axis=(0, 1))
+                    print(mean_color)
+                    pixels[i] = bgr_to_rgb(mean_color.tolist())  # Pass as list
             pixels.show()
             print("LEDs Updated")
-        except mp.Queue.Empty:
+        except mp.queues.Empty:
             pass
         time.sleep(WAIT)
 
