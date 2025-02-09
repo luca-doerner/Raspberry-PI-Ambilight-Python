@@ -24,18 +24,19 @@ if not cap.isOpened():
     exit()
 
 def get_screen(q):
-    ret, frame = cap.read()
-    if not ret:
-        print("Kein HDMI-Signal!")
-        exit()
-    q.put(frame)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("Kein HDMI-Signal!")
+            exit()
+        q.put(frame)
 
 def get_dominant_color(q_in, q_out):
-    frame = q_in.get()
-    resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
-    print(resized[0,0].tolist())
-    cv2.imwrite("resized_image.jpg", resized)
-    q_out.put(resized)
+    while True:
+        frame = q_in.get()
+        resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
+        print(resized[0,0].tolist())
+        q_out.put(resized)
 
 def update_leds(q):
     """ LEDs aktualisieren """
@@ -44,16 +45,16 @@ def update_leds(q):
             colors = q.get_nowait()
             for i in range(LED_COUNT):
                 if(i >= 150):
-                    color = colors[39, i - 150]
+                    color = colors[i - 150, 36]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= 110):
-                    color = colors[i - 110, 69]
+                    color = colors[66, i - 110]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= 40):
-                    color = colors[0, i - 40]
+                    color = colors[i - 40, 3]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 else:
-                    color = colors[i, 0]
+                    color = colors[3, i]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
             pixels.show()
             print("LEDs Updated")

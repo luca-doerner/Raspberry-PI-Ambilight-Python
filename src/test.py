@@ -1,12 +1,12 @@
 import numpy as np
+import cv2
 
-# List of tuples (x, y, z)
-tuples = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+X = 70
+Y = 40
 
-# Convert the list of tuples to a NumPy array
-arr = np.array(tuples)
+img = cv2.imread("resized_image.jpg")
 
-# Calculate the mean for each column (x, y, z)
-mean_tuple = np.mean(tuples, axis=0)
-
-print(mean_tuple)
+for i in range(X):
+    print("\n")
+    for j in range(Y):
+        print(img[i,j], end=" ")
