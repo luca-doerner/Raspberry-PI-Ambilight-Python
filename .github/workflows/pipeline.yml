@@ -3,7 +3,7 @@ name: Deploy with Ansible
 on:
   push:
     branches:
-      - main  # Runs when changes are pushed to "main"
+      - '**'  # Runs when changes are pushed to "main"
 
 jobs:
   deploy:

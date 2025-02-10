@@ -36,6 +36,10 @@ def get_dominant_color(q_in, q_out):
     while True:
         frame = q_in.get_nowait()
         resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
+        resized_x = cv2.resize(frame, (70, 3), interpolation=cv2.INTER_LINEAR)
+        resized_y = cv2.resize(frame, (3, 40), interpolation=cv2.INTER_LINEAR)
+        cv2.imwrite("resized_x.jpg", resized_x)
+        cv2.imwrite("resized_y.jpg", resized_y)
         print(resized[0,0].tolist())
         q_out.put_nowait(resized)
 
