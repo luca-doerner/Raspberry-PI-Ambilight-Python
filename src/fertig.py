@@ -40,6 +40,7 @@ def get_dominant_color(q_in, q_out):
         q_out.put_nowait(resized)
 
 #TODO: leds immer updaten wenn neuer input
+#TODO: chatGPT while not queue.empty()
 def update_leds(q):
     """ LEDs aktualisieren """
     while True:
