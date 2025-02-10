@@ -5,6 +5,7 @@ import time
 import numpy as np
 import cv2
 import json
+import threading
 
 # LED-Konfiguration (Anpassen an dein Setup)
 PIN = board.D18
@@ -79,6 +80,7 @@ def update_leds(q, previous_count, count, side):
 
         try:
             colors = q.get_nowait()
+            print(f"Updating side {side} with {len(colors)} colors")
             for i in range(start, end):
                 color = get_pixel_color(i, start, end, side, count, colors)
                 pixels[i] = bgr_to_rgb(color)
@@ -86,20 +88,29 @@ def update_leds(q, previous_count, count, side):
             for i in range(start_invert, end_invert):
                 color = get_pixel_color(i, start, end, side, count, colors)
                 pixels[i] = bgr_to_rgb(color)
-            pixels.show()
         except mp.queues.Empty:
             pass
 
 def get_pixel_color(i, start, end, side, count, colors):
     if side == "left":
-        color = colors[count-(i-start-1), 2]
+        color = colors[count-(i-start+1), 2]
     elif side == "top":
         color = colors[2, i-start-1]
     elif side == "right":
-        color = colors[count-(i-start-1), 8]
+        color = colors[i-start-1, 8]
     elif side == "bottom":
-        color = colors[8, count-(i-start-1)]
+        color = colors[8, count-(i-start+1)]
     return color
+
+# Neuer Thread zum regelmäßigen `pixels.show()`
+def led_updater():
+    while True:
+        time.sleep(0.01)  # Kurzes Delay, um die CPU nicht zu überlasten
+        pixels.show()
+
+# Startet den LED-Update-Thread
+t_led_updater = threading.Thread(target=led_updater, daemon=True)
+t_led_updater.start()
 
 def bgr_to_rgb(color):
     return (round(color[2]), round(color[1]), round(color[0]))
@@ -122,22 +133,22 @@ if __name__ == "__main__":
         q_color_left,
         0,
         LED_COUNT_LEFT,
-        True))
+        "left"))
     p_led_top = mp.Process(target=update_leds, args=(
         q_color_top,
         LED_COUNT_LEFT,
         LED_COUNT_TOP,
-        False))
+        "top"))
     p_led_right = mp.Process(target=update_leds, args=(
         q_color_right,
         LED_COUNT_LEFT+LED_COUNT_TOP,
         LED_COUNT_RIGHT,
-        True))
+        "right"))
     p_led_bottom = mp.Process(target=update_leds, args=(
         q_color_bottom,
         LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT,
         LED_COUNT_BOTTOM,
-        False))
+        "bottom"))
 
     p_screen.start()
 
