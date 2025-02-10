@@ -50,69 +50,23 @@ def get_dominant_color(q_in, q_out, x, y):
         except mp.queues.Empty:
             pass
 
-#TODO: resized_height und resized_width -> einmal langegestreckt in die eine und dann in die anderen richtung
-def get_dominant_color_left(q_in, q_out):
-    while True:
-        try:
-            resized = get_dominant_color(q_in, 11, LED_COUNT_LEFT)
-            q_out.put_nowait(resized)
-        except mp.queues.Empty:
-            pass
-
-def get_dominant_color_top(q_in, q_out):
-    while True:
-        try:
-            resized = get_dominant_color(q_in, LED_COUNT_TOP, 11)
-            q_out.put_nowait(resized)
-        except mp.queues.Empty:
-            pass
-
-def get_dominant_color_right(q_in, q_out):
-    while True:
-        try:
-            resized = get_dominant_color(q_in, 11, LED_COUNT_RIGHT)
-            q_out.put_nowait(resized)
-        except mp.queues.Empty:
-            pass
-
-def get_dominant_color_bottom(q_in, q_out):
-    while True:
-        try:
-            resized = get_dominant_color(q_in, LED_COUNT_BOTTOM, 11)
-            q_out.put_nowait(resized)
-        except mp.queues.Empty:
-            pass
-
-#TODO: leds immer updaten wenn neuer input
-def update_leds_old(q):
-    """ LEDs aktualisieren """
-    while True:
-        try:
-            colors = q.get_nowait()
-            for i in range(LED_COUNT):
-                if(i >= 150):
-                    color = colors[36, i - 150]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-                elif(i >= 110):
-                    color = colors[i - 110, 66]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-                elif(i >= 40):
-                    color = colors[3, i - 40]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-                else:
-                    color = colors[i, 3]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-            pixels.show()
-            print("LEDs Updated")
-        except KeyboardInterrupt:
-            pixels.fill((0,0,0))
-            pixels.show()
-            exit()
-        except mp.queues.Empty:
-            pass
 
 def update_leds(q, previous_count, count, side):
     while True:
+        short_side = False
+        padding = 0
+
+        if side == "left":
+            short_side = True
+            padding = 2
+        elif side == "top":
+            padding = 2
+        elif side == "right":
+            short_side = True
+            padding = 8
+        elif side == "bottom":
+            padding = 8
+
         start = previous_count-LED_OFFSET
         end = start+count
 
@@ -126,21 +80,26 @@ def update_leds(q, previous_count, count, side):
         try:
             colors = q.get_nowait()
             for i in range(start, end):
-                if side:
-                    color = colors[i, 2]
-                else:
-                    color = colors[2, i]
+                color = get_pixel_color(i, start, end, side, count, colors)
                 pixels[i] = bgr_to_rgb(color)
 
             for i in range(start_invert, end_invert):
-                if side:
-                    color = colors[i, 2]
-                else:
-                    color = colors[2, i]
+                color = get_pixel_color(i, start, end, side, count, colors)
                 pixels[i] = bgr_to_rgb(color)
             pixels.show()
         except mp.queues.Empty:
             pass
+
+def get_pixel_color(i, start, end, side, count, colors):
+    if side == "left":
+        color = colors[count-(i-start-1), 2]
+    elif side == "top":
+        color = colors[2, i-start-1]
+    elif side == "right":
+        color = colors[count-(i-start-1), 8]
+    elif side == "bottom":
+        color = colors[8, count-(i-start-1)]
+    return color
 
 def bgr_to_rgb(color):
     return (round(color[2]), round(color[1]), round(color[0]))
