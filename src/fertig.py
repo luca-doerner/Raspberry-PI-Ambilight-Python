@@ -10,7 +10,7 @@ import threading
 # LED-Konfiguration (Anpassen an dein Setup)
 PIN = board.D18
 
-WAIT = 0.01
+WAIT = 0.02
 
 with open("config.json", "r") as file:
     data = json.load(file)
