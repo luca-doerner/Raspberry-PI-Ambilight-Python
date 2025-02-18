@@ -14,6 +14,17 @@ LED_BRIGHTNESS = 0.7
 
 WAIT = 0.01
 
+class SmoothColor:
+    def __init__(self, alpha=0.3):
+        self.color = np.array([0,0,0])
+        self.alpha = alpha
+    
+    def smooth(self, new_color):
+        self.color = self.alpha * np.array(new_color) + (1 - self.alpha) * self.color
+        return tuple(self.color.astype(int))
+
+smooth_color = SmoothColor()
+
 # Initialize NeoPixel object
 pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=0.7, auto_write=False)
 
@@ -34,10 +45,13 @@ def get_screen(q):
 #TODO: resized_height und resized_width -> einmal langegestreckt in die eine und dann in die anderen richtung
 def get_dominant_color(q_in, q_out):
     while True:
-        frame = q_in.get_nowait()
-        resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
-        print(resized[0,0].tolist())
-        q_out.put_nowait(resized)
+        try:
+            frame = q_in.get_nowait()
+            resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
+            print(resized[0,0].tolist())
+            q_out.put_nowait(resized)
+        except mp.queues.Empty:
+            pass
 
 #TODO: leds immer updaten wenn neuer input
 #TODO: chatGPT while not queue.empty()
@@ -49,16 +63,16 @@ def update_leds(q):
             for i in range(LED_COUNT):
                 if(i >= 150):
                     color = colors[36, i - 150]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                    pixels[i] = smooth_color.smooth(bgr_to_rgb(color.tolist()))  # Pass as list
                 elif(i >= 110):
                     color = colors[i - 110, 66]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                    pixels[i] = smooth_color.smooth(bgr_to_rgb(color.tolist()))  # Pass as list
                 elif(i >= 40):
                     color = colors[3, i - 40]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                    pixels[i] = smooth_color.smooth(bgr_to_rgb(color.tolist()))  # Pass as list
                 else:
                     color = colors[i, 3]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                    pixels[i] = smooth_color.smooth(bgr_to_rgb(color.tolist()))  # Pass as list
             pixels.show()
             print("LEDs Updated")
         except KeyboardInterrupt:
