@@ -83,7 +83,7 @@ def update_leds(q):
             pass
 
 def bgr_to_rgb(color):
-    return (round(color[2]), round(color[0]), round(color[1]))
+    return (round(color[2]), round(color[1]), round(color[0]))
 
 if __name__ == "__main__":
     q_screen = mp.Queue()
