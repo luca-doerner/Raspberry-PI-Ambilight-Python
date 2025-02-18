@@ -15,7 +15,7 @@ LED_BRIGHTNESS = 0.7
 WAIT = 0.01
 
 def get_smooth_color(c1, c2, ratio=0.3):
-    return c1*ratio + c2*(1-ratio)
+    return np.rint(np.array(c1)*ratio + np.array(c2)*(1-ratio)).astype(int).tolist()
 
 # Initialize NeoPixel object
 pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=0.7, auto_write=False)
@@ -67,8 +67,8 @@ def update_leds(q):
                 else:
                     color = colors[i, 3]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-            pixels = get_smooth_color(old_pixels, pixels)
-            old_pixels = pixels
+            pixels[:] = get_smooth_color(old_pixels, pixels)
+            old_pixels[:] = pixels
             pixels.show()
             print("LEDs Updated")
         except KeyboardInterrupt:
