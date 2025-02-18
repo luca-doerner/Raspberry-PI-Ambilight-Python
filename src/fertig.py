@@ -24,7 +24,7 @@ class SmoothColor:
         return tuple(self.color.astype(int))
 
 def get_smooth_color(c1, c2, ratio=0.3):
-    return c1*ratio + c2*(1-ratio)
+    return np.round(c1*ratio + c2*(1-ratio)).tolist()
 
 smooth_color = SmoothColor()
 
@@ -63,19 +63,19 @@ def update_leds(q):
     while True:
         try:
             colors = q.get_nowait()
-            for i in range(LED_COUNT):
+            for i in range(LED_COUNT):,
                 if(i >= 150):
                     color = colors[36, i - 150]
-                    pixels[i] = get_smooth_color(pixels[i], bgr_to_rgb(color.tolist))  # Pass as list
+                    pixels[i] = get_smooth_color(np.array(pixels[i]), bgr_to_rgb(color.tolist()))  # Pass as list
                 elif(i >= 110):
                     color = colors[i - 110, 66]
-                    pixels[i] = get_smooth_color(pixels[i], bgr_to_rgb(color.tolist))  # Pass as list
+                    pixels[i] = get_smooth_color(np.array(pixels[i]), bgr_to_rgb(color.tolist()))  # Pass as list
                 elif(i >= 40):
                     color = colors[3, i - 40]
-                    pixels[i] = get_smooth_color(pixels[i], bgr_to_rgb(color.tolist))  # Pass as list
+                    pixels[i] = get_smooth_color(np.array(pixels[i]), bgr_to_rgb(color.tolist()))  # Pass as list
                 else:
                     color = colors[i, 3]
-                    pixels[i] = get_smooth_color(pixels[i], bgr_to_rgb(color.tolist))  # Pass as list
+                    pixels[i] = get_smooth_color(np.array(pixels[i]), bgr_to_rgb(color.tolist()))  # Pass as list
             pixels.show()
             print("LEDs Updated")
         except KeyboardInterrupt:
@@ -86,7 +86,7 @@ def update_leds(q):
             pass
 
 def bgr_to_rgb(color):
-    return np.array([round(color[2]), round(color[1]), round(color[0])])
+    return np.array([color[2], color[1], color[0]])
 
 if __name__ == "__main__":
     q_screen = mp.Queue()
