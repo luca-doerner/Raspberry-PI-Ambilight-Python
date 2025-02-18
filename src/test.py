@@ -11,7 +11,10 @@ Y = 40
 def get_smooth_color(c1, c2, ratio=0.3):
     return c1*ratio + c2*(1-ratio)
 
-print(get_smooth_color(np.array([1,1,1]), np.array([200,200,200])))
+arr1 = np.array([[[0,0,0], [1,1,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]]])
+arr2 = np.array([[[0,0,0], [1,2,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]]])
+
+print(get_smooth_color(arr1, arr2))
 
 #for j in range(Y):
  #   print("\n")

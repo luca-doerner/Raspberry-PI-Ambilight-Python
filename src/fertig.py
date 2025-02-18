@@ -14,19 +14,8 @@ LED_BRIGHTNESS = 0.7
 
 WAIT = 0.01
 
-class SmoothColor:
-    def __init__(self, alpha=0.3):
-        self.color = np.array([0,0,0])
-        self.alpha = alpha
-    
-    def smooth(self, new_color):
-        self.color = self.alpha * np.array(new_color) + (1 - self.alpha) * self.color
-        return tuple(self.color.astype(int))
-
 def get_smooth_color(c1, c2, ratio=0.3):
-    return np.round(c1*ratio + c2*(1-ratio)).tolist()
-
-smooth_color = SmoothColor()
+    return c1*ratio + c2*(1-ratio)
 
 # Initialize NeoPixel object
 pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=0.7, auto_write=False)
@@ -63,19 +52,21 @@ def update_leds(q):
     while True:
         try:
             colors = q.get_nowait()
-            for i in range(LED_COUNT):,
+            old_colors = pixels
+            for i in range(LED_COUNT):
                 if(i >= 150):
                     color = colors[36, i - 150]
-                    pixels[i] = get_smooth_color(np.array(pixels[i]), bgr_to_rgb(color.tolist()))  # Pass as list
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= 110):
                     color = colors[i - 110, 66]
-                    pixels[i] = get_smooth_color(np.array(pixels[i]), bgr_to_rgb(color.tolist()))  # Pass as list
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= 40):
                     color = colors[3, i - 40]
-                    pixels[i] = get_smooth_color(np.array(pixels[i]), bgr_to_rgb(color.tolist()))  # Pass as list
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 else:
                     color = colors[i, 3]
-                    pixels[i] = get_smooth_color(np.array(pixels[i]), bgr_to_rgb(color.tolist()))  # Pass as list
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+            pixels = get_smooth_color(old_colors, pixels)
             pixels.show()
             print("LEDs Updated")
         except KeyboardInterrupt:
@@ -86,7 +77,7 @@ def update_leds(q):
             pass
 
 def bgr_to_rgb(color):
-    return np.array([color[2], color[1], color[0]])
+    return (round(color[2]), round(color[1]), round(color[0]))
 
 if __name__ == "__main__":
     q_screen = mp.Queue()
