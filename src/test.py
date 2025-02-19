@@ -1,4 +1,5 @@
 import numpy as np
+import time
 #import cv2
 
 X = 70
@@ -15,6 +16,10 @@ arr1 = np.array([[[0,0,0], [1,1,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]], [[0,0
 arr2 = np.array([[[0,0,0], [1,2,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]]])
 
 print(get_smooth_color(arr1, arr2))
+
+while(True):
+    print("Moin")
+    time.sleep(10)
 
 #for j in range(Y):
  #   print("\n")

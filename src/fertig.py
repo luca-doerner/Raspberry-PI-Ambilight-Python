@@ -12,7 +12,7 @@ LED_COUNT = 220
 PIN = board.D18
 LED_BRIGHTNESS = 0.7
 
-WAIT = 0.01
+WAIT = 0.0016
 
 def get_smooth_color(c1, c2, ratio=0.3):
     return np.rint(np.array(c1)*ratio + np.array(c2)*(1-ratio)).astype(int).tolist()
@@ -34,7 +34,8 @@ def get_screen(q):
         if not ret:
             print("Kein HDMI-Signal!")
             exit()
-        q.put_nowait(frame)
+        q.put(frame)
+        time.sleep(WAIT)
 
 #TODO: resized_height und resized_width -> einmal langegestreckt in die eine und dann in die anderen richtung
 def get_dominant_color(q_in, q_out):
@@ -44,6 +45,7 @@ def get_dominant_color(q_in, q_out):
             resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
             print(resized[0,0].tolist())
             q_out.put_nowait(resized)
+            time.sleep(WAIT)
         except mp.queues.Empty:
             pass
 
@@ -71,6 +73,7 @@ def update_leds(q):
             old_pixels[:] = pixels
             pixels.show()
             print("LEDs Updated")
+            time.sleep(WAIT)
         except KeyboardInterrupt:
             pixels.fill((0,0,0))
             pixels.show()
