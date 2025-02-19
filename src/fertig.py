@@ -22,7 +22,7 @@ pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=0.7, auto_write=False)
 
 cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
 
-old_pixels = []
+old_pixels = [[0,0,0]] * LED_COUNT
 
 if not cap.isOpened():
     print("Fehler: HDMI-Capture-Device nicht gefunden!")
