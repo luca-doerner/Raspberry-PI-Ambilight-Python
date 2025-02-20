@@ -12,14 +12,18 @@ Y = 40
 def get_smooth_color(c1, c2, ratio=0.3):
     return c1*ratio + c2*(1-ratio)
 
-arr1 = np.array([[[0,0,0], [1,1,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]]])
+arr1 = np.array([[[0,0,0], [1,7,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]], [[0,0,0], [1,255,255], [255,255,255]]])
 arr2 = np.array([[[0,0,0], [1,2,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]]])
 
-print(get_smooth_color(arr1, arr2))
+arr1_mean = np.mean(arr1, axis=2, keepdims=True)
 
-while(True):
-    print("Moin")
-    time.sleep(10)
+print(arr1[0,1])
+print(arr1_mean[0,1])
+print((arr1_mean/255))
+
+#while(True):
+#    print("Moin")
+#    time.sleep(10)
 
 #for j in range(Y):
  #   print("\n")

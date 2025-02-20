@@ -23,7 +23,7 @@ PIN = board.D18
 
 WAIT = 0.0016
 
-def update_variables(){
+def update_variables():
     while True:
         with open("config.json", "r") as file:
             data = json.load(file)
@@ -35,10 +35,11 @@ def update_variables(){
         LED_BRIGHTNESS = data["brightness"]
         LED_COUNT = LED_COUNT_BOTTOM + LED_COUNT_RIGHT + LED_COUNT_TOP + LED_COUNT_LEFT
         LED_OFFSET = data["offset"]
-}
 
-def get_smooth_color(c1, c2, ratio=0.6):
-    return np.rint(np.array(c1)*ratio + np.array(c2)*(1-ratio)).astype(int).tolist()
+def get_smooth_color(c1, c2, ratio=0.7):
+    smooth_color = np.array(c1)*ratio + np.array(c2)*(1-ratio)
+    color_brightness = np.mean(smooth_color, axis=2, keepdims=True)
+    return np.rint(smooth_color*color_brightness).astype(int).tolist()
 
 # Initialize NeoPixel object
 pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=1, auto_write=False)
@@ -88,11 +89,9 @@ def update_leds(q):
             colors_right = colors[2]
             colors_bottom = colors[3]
 
-            old_pixels = new_pixels
-
             for i in range(LED_COUNT):
                 if(i >= LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT):
-                    color = colors_bottom[2, LED_COUNT_BOTTOM - (i - (LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT))]
+                    color = colors_bottom[2, (LED_COUNT_BOTTOM-1) - (i - (LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT))]
                     new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= LED_COUNT_LEFT+LED_COUNT_TOP):
                     color = colors_right[i - (LED_COUNT_LEFT+LED_COUNT_TOP), 2]
@@ -104,8 +103,8 @@ def update_leds(q):
                     color = colors_left[(LED_COUNT_LEFT-1) - i, 0]
                     new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
             pixels[:] = get_smooth_color(old_pixels, new_pixels)
+            old_pixels[:] = pixels
             pixels.show()
-            print("LEDs Updated")
             time.sleep(WAIT)
         except KeyboardInterrupt:
             pixels.fill((0,0,0))
