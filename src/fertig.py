@@ -46,6 +46,7 @@ pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=1, auto_write=False)
 cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
 
 old_pixels = [[0,0,0]] * LED_COUNT
+new_pixels = [[0,0,0]] * LED_COUNT
 
 if not cap.isOpened():
     print("Fehler: HDMI-Capture-Device nicht gefunden!")
@@ -65,8 +66,11 @@ def get_dominant_color(q_in, q_out):
     while True:
         try:
             frame = q_in.get_nowait()
-            resized = cv2.resize(frame, (70, 40), interpolation=cv2.INTER_LINEAR)
-            print(resized[0,0].tolist())
+            resized_left = cv2.resize(frame, (3, LED_COUNT_LEFT), interpolation=cv2.INTER_NEAREST)
+            resized_top = cv2.resize(frame, (LED_COUNT_TOP, 3), interpolation=cv2.INTER_NEAREST)
+            resized_right = cv2.resize(frame, (3, LED_COUNT_RIGHT), interpolation=cv2.INTER_NEAREST)
+            resized_bottom = cv2.resize(frame, (LED_COUNT_BOTTOM, 3), interpolation=cv2.INTER_NEAREST)
+            resized = [resized_left, resized_top, resized_right, resized_bottom]
             q_out.put_nowait(resized)
             time.sleep(WAIT)
         except mp.queues.Empty:
@@ -79,21 +83,27 @@ def update_leds(q):
     while True:
         try:
             colors = q.get_nowait()
+            colors_left = colors[0]
+            colors_top = colors[1]
+            colors_right = colors[2]
+            colors_bottom = colors[3]
+
+            old_pixels = new_pixels
+
             for i in range(LED_COUNT):
-                if(i >= 150):
-                    color = colors[37, 69 - (i - 150)]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-                elif(i >= 110):
-                    color = colors[i - 110, 67]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-                elif(i >= 40):
-                    color = colors[2, i - 40]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                if(i >= LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT):
+                    color = colors_bottom[2, LED_COUNT_BOTTOM - (i - (LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT))]
+                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                elif(i >= LED_COUNT_LEFT+LED_COUNT_TOP):
+                    color = colors_right[i - (LED_COUNT_LEFT+LED_COUNT_TOP), 2]
+                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                elif(i >= LED_COUNT_LEFT):
+                    color = colors_top[0, i - LED_COUNT_LEFT]
+                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 else:
-                    color = colors[39 - i, 2]
-                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-            pixels[:] = get_smooth_color(old_pixels, pixels)
-            old_pixels[:] = pixels
+                    color = colors_left[(LED_COUNT_LEFT-1) - i, 0]
+                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+            pixels[:] = get_smooth_color(old_pixels, new_pixels)
             pixels.show()
             print("LEDs Updated")
             time.sleep(WAIT)
