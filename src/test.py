@@ -17,6 +17,7 @@ arr2 = np.array([[[0,0,0], [1,2,1], [2,2,2]], [[0,0,0], [1,1,1], [2,2,2]], [[0,0
 
 arr1_mean = np.mean(arr1, axis=2, keepdims=True)
 
+print(np.ones((10,1)))
 
 print(arr1[0,1])
 print(arr1_mean[0,1])

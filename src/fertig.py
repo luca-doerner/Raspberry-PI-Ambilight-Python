@@ -37,9 +37,9 @@ def update_variables():
         LED_OFFSET = data["offset"]
 
 def get_smooth_color(c1, c2, ratio=0.7):
-    new_color_brightness = np.power(np.mean(c2, axis=1, keepdims=True)/255, 0.5)
-    smooth_color = c1*(np.ones(LED_COUNT)-new_color_brightness) + c2*new_color_brightness
-    return np.rint(smooth_color*new_color_brightness).astype(int).tolist()
+    c2 = c2*(np.power(np.mean(c2, axis=1, keepdims=True)/255, 0.5))
+    smooth_color = np.rint(c1*ratio + c2*(1-ratio)).astype(int).tolist()
+    return smooth_color
 
 # Initialize NeoPixel object
 pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=1, auto_write=False)
