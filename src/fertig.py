@@ -38,8 +38,8 @@ def update_variables():
 
 def get_smooth_color(c1, c2, ratio=0.7):
     smooth_color = np.array(c1)*ratio + np.array(c2)*(1-ratio)
-    color_brightness = np.mean(smooth_color, axis=2, keepdims=True)
-    return np.rint(smooth_color*color_brightness).astype(int).tolist()
+    new_color_brightness = np.mean(c2, axis=2, keepdims=True)/255
+    return np.rint(smooth_color*new_color_brightness).astype(int).tolist()
 
 # Initialize NeoPixel object
 pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=1, auto_write=False)
@@ -47,7 +47,6 @@ pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=1, auto_write=False)
 cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
 
 old_pixels = [[0,0,0]] * LED_COUNT
-new_pixels = [[0,0,0]] * LED_COUNT
 
 if not cap.isOpened():
     print("Fehler: HDMI-Capture-Device nicht gefunden!")
@@ -92,17 +91,17 @@ def update_leds(q):
             for i in range(LED_COUNT):
                 if(i >= LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT):
                     color = colors_bottom[7, (LED_COUNT_BOTTOM-1) - (i - (LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT))]
-                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= LED_COUNT_LEFT+LED_COUNT_TOP):
                     color = colors_right[i - (LED_COUNT_LEFT+LED_COUNT_TOP), 7]
-                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= LED_COUNT_LEFT):
                     color = colors_top[1, i - LED_COUNT_LEFT]
-                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 else:
                     color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
-                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-            pixels[:] = get_smooth_color(old_pixels, new_pixels)
+                    pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+            pixels[:] = get_smooth_color(old_pixels, pixels)
             old_pixels[:] = pixels
             pixels.show()
             time.sleep(WAIT)
