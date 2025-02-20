@@ -67,10 +67,10 @@ def get_dominant_color(q_in, q_out):
     while True:
         try:
             frame = q_in.get_nowait()
-            resized_left = cv2.resize(frame, (3, LED_COUNT_LEFT), interpolation=cv2.INTER_NEAREST)
-            resized_top = cv2.resize(frame, (LED_COUNT_TOP, 3), interpolation=cv2.INTER_NEAREST)
-            resized_right = cv2.resize(frame, (3, LED_COUNT_RIGHT), interpolation=cv2.INTER_NEAREST)
-            resized_bottom = cv2.resize(frame, (LED_COUNT_BOTTOM, 3), interpolation=cv2.INTER_NEAREST)
+            resized_left = cv2.resize(frame, (9, LED_COUNT_LEFT), interpolation=cv2.INTER_NEAREST)
+            resized_top = cv2.resize(frame, (LED_COUNT_TOP, 9), interpolation=cv2.INTER_NEAREST)
+            resized_right = cv2.resize(frame, (9, LED_COUNT_RIGHT), interpolation=cv2.INTER_NEAREST)
+            resized_bottom = cv2.resize(frame, (LED_COUNT_BOTTOM, 9), interpolation=cv2.INTER_NEAREST)
             resized = [resized_left, resized_top, resized_right, resized_bottom]
             q_out.put_nowait(resized)
             time.sleep(WAIT)
@@ -91,16 +91,16 @@ def update_leds(q):
 
             for i in range(LED_COUNT):
                 if(i >= LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT):
-                    color = colors_bottom[2, (LED_COUNT_BOTTOM-1) - (i - (LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT))]
+                    color = colors_bottom[7, (LED_COUNT_BOTTOM-1) - (i - (LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT))]
                     new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= LED_COUNT_LEFT+LED_COUNT_TOP):
-                    color = colors_right[i - (LED_COUNT_LEFT+LED_COUNT_TOP), 2]
+                    color = colors_right[i - (LED_COUNT_LEFT+LED_COUNT_TOP), 7]
                     new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= LED_COUNT_LEFT):
-                    color = colors_top[0, i - LED_COUNT_LEFT]
+                    color = colors_top[1, i - LED_COUNT_LEFT]
                     new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 else:
-                    color = colors_left[(LED_COUNT_LEFT-1) - i, 0]
+                    color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
                     new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
             pixels[:] = get_smooth_color(old_pixels, new_pixels)
             old_pixels[:] = pixels
