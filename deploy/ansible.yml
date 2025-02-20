@@ -8,3 +8,9 @@
         dest: /home/luca/Ambilight/
         owner: luca
         group: luca
+    - name: Deploy JSON
+      copy:
+        src: ../src/config.json
+        dest: /home/luca/Ambilight/
+        owner: luca
+        group: luca

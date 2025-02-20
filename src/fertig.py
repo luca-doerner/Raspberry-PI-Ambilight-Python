@@ -6,19 +6,42 @@ import mss
 import numpy as np
 import cv2
 import queue
+import json
 
-# LED-Konfiguration (Anpassen an dein Setup)
-LED_COUNT = 220
+# LED-Konfiguration
+with open("config.json", "r") as file:
+    data = json.load(file)
+
+LED_COUNT_LEFT = data["count_left"]
+LED_COUNT_TOP = data["count_top"]
+LED_COUNT_RIGHT = data["count_right"]
+LED_COUNT_BOTTOM = data["count_bottom"]
+LED_BRIGHTNESS = data["brightness"]
+LED_COUNT = LED_COUNT_BOTTOM + LED_COUNT_RIGHT + LED_COUNT_TOP + LED_COUNT_LEFT
+LED_OFFSET = data["offset"]
 PIN = board.D18
-LED_BRIGHTNESS = 0.7
 
 WAIT = 0.0016
 
-def get_smooth_color(c1, c2, ratio=0.3):
+def update_variables(){
+    while True:
+        with open("config.json", "r") as file:
+            data = json.load(file)
+
+        LED_COUNT_LEFT = data["count_left"]
+        LED_COUNT_TOP = data["count_top"]
+        LED_COUNT_RIGHT = data["count_right"]
+        LED_COUNT_BOTTOM = data["count_bottom"]
+        LED_BRIGHTNESS = data["brightness"]
+        LED_COUNT = LED_COUNT_BOTTOM + LED_COUNT_RIGHT + LED_COUNT_TOP + LED_COUNT_LEFT
+        LED_OFFSET = data["offset"]
+}
+
+def get_smooth_color(c1, c2, ratio=0.6):
     return np.rint(np.array(c1)*ratio + np.array(c2)*(1-ratio)).astype(int).tolist()
 
 # Initialize NeoPixel object
-pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=0.7, auto_write=False)
+pixels = neopixel.NeoPixel(PIN, LED_COUNT, brightness=1, auto_write=False)
 
 cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
 
@@ -58,16 +81,16 @@ def update_leds(q):
             colors = q.get_nowait()
             for i in range(LED_COUNT):
                 if(i >= 150):
-                    color = colors[36, i - 150]
+                    color = colors[37, 69 - (i - 150)]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= 110):
-                    color = colors[i - 110, 66]
+                    color = colors[i - 110, 67]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 elif(i >= 40):
-                    color = colors[3, i - 40]
+                    color = colors[2, i - 40]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
                 else:
-                    color = colors[i, 3]
+                    color = colors[39 - i, 2]
                     pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
             pixels[:] = get_smooth_color(old_pixels, pixels)
             old_pixels[:] = pixels
@@ -88,14 +111,17 @@ if __name__ == "__main__":
     q_screen = mp.Queue()
     q_colors = mp.Queue()
 
-    p1 = mp.Process(target=get_screen, args=(q_screen,))
-    p2 = mp.Process(target=get_dominant_color, args=(q_screen, q_colors))
-    p3 = mp.Process(target=update_leds, args=(q_colors,))
+    p_get_screen = mp.Process(target=get_screen, args=(q_screen,))
+    p_dominant_colors = mp.Process(target=get_dominant_color, args=(q_screen, q_colors))
+    p_update_leds = mp.Process(target=update_leds, args=(q_colors,))
+    p_update_variables = mp.Process(target=update_variables)
 
-    p1.start()
-    p2.start()
-    p3.start()
+    p_get_screen.start()
+    p_dominant_colors.start()
+    p_update_leds.start()
+    p_update_variables.start()
 
-    p1.join()
-    p2.join()
-    p3.join()
+    p_update_variables.join()
+    p_get_screen.join()
+    p_dominant_colors.join()
+    p_update_leds.join()
