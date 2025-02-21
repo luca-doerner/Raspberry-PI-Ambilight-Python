@@ -4,13 +4,25 @@
   tasks:
     - name: Deploy built application
       copy:
-        src: ../src/fertig.py
+        src: ../src/ambilight.py
         dest: /home/luca/Ambilight/
         owner: luca
         group: luca
     - name: Deploy JSON
       copy:
         src: ../src/config.json
+        dest: /home/luca/Ambilight/
+        owner: luca
+        group: luca
+    - name: Deploy startAmbilight.sh
+      copy:
+        src: ../src/startAmbilight.sh
+        dest: /home/luca/Ambilight/
+        owner: luca
+        group: luca
+    - name: Deploy stopAmbilight.sh
+      copy:
+        src: ../src/stopAmbilight.sh
         dest: /home/luca/Ambilight/
         owner: luca
         group: luca
