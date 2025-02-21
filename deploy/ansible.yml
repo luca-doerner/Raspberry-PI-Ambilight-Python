@@ -18,11 +18,13 @@
       copy:
         src: ../src/startAmbilight.sh
         dest: /home/luca/Ambilight/
+        mode: '0777'
         owner: luca
         group: luca
     - name: Deploy stopAmbilight.sh
       copy:
         src: ../src/stopAmbilight.sh
         dest: /home/luca/Ambilight/
+        mode: '0777'
         owner: luca
         group: luca

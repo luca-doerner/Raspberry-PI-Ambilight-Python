@@ -26,16 +26,21 @@ WAIT = 0.0016
 #Always update LED configuratiosn from JSON
 def update_variables():
     while True:
-        with open("config.json", "r") as file:
-            data = json.load(file)
+        try:
+            with open("config.json", "r") as file:
+                data = json.load(file)
 
-        LED_COUNT_LEFT = data["count_left"]
-        LED_COUNT_TOP = data["count_top"]
-        LED_COUNT_RIGHT = data["count_right"]
-        LED_COUNT_BOTTOM = data["count_bottom"]
-        LED_BRIGHTNESS = data["brightness"]
-        LED_COUNT = LED_COUNT_BOTTOM + LED_COUNT_RIGHT + LED_COUNT_TOP + LED_COUNT_LEFT
-        LED_OFFSET = data["offset"]
+            LED_COUNT_LEFT = data["count_left"]
+            LED_COUNT_TOP = data["count_top"]
+            LED_COUNT_RIGHT = data["count_right"]
+            LED_COUNT_BOTTOM = data["count_bottom"]
+            LED_BRIGHTNESS = data["brightness"]
+            LED_COUNT = LED_COUNT_BOTTOM + LED_COUNT_RIGHT + LED_COUNT_TOP + LED_COUNT_LEFT
+            LED_OFFSET = data["offset"]
+        except KeyboardInterrupt:
+            pixels.fill((0,0,0))
+            pixels.show()
+            exit()
 
 
 
