@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # options:
     # -f to run the program in foreground
@@ -54,14 +54,14 @@ else
         echo "Waiting for Ambilight to start (timeout in 60 seconds)..."
         sleep 2
         PID=$(pgrep -f $PYTHON_FILE)
-        STARTED=$(grep "Started.*in.*seconds" ${NOHUP_OUT})
+        STARTED=$(grep "Started.*" ${NOHUP_OUT})
         SHUTDOWN=$(grep "Shutdown completed" ${NOHUP_OUT})
         i=0
         while [[ -z $STARTED && -z SHUTDOWN && ${i} -lt 19 ]]
         do
             echo "Waiting for Ambilight to start (timeout in $((60-3*(i+1))) seconds)..."
             sleep 3
-            STARTED=$(grep "Started.*in.*seconds" ${NOHUP_OUT})
+            STARTED=$(grep "Started.*" ${NOHUP_OUT})
             SHUTDOWN=$(grep 'Shutdown completed\|Application run failed' ${NOHUP_OUT})
             i=$((i+1))
         done
@@ -77,7 +77,7 @@ else
             START_TIME=$(echo ${STARTED} | grep -o '[0-9]*\.[0-9]* seconds')
             echo -e "${GREEN}Done: ${NC}Successfully started ${PYTHON_FILE} (pid: ${PID}) in background (${START_TIME})! Output is written to ${NOHUP_OUT}"
         else # timeout
-            echoerr "${YELLOW}Warning: ${NC}Application ${JAR_FILE} could not be started within 60 seconds, which is unusual, please check ${NOHUP_OUT} !"
+            echoerr "${YELLOW}Warning: ${NC}Application ${PYTHON_FILE} could not be started within 60 seconds, which is unusual, please check ${NOHUP_OUT} !"
             exit 1
         fi
     fi

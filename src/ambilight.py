@@ -178,3 +178,5 @@ if __name__ == "__main__":
     p_get_screen.join()
     p_dominant_colors.join()
     p_update_leds.join()
+
+    print("Started ambilight.py")
