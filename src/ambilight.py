@@ -97,7 +97,7 @@ def get_screen(q):
 def get_dominant_color(q_in, q_out):
     while True:
         try:
-            frame = q_in.get()
+            frame = q_in.get_nowait()
             resized_left = cv2.resize(frame, (9, LED_COUNT_LEFT), interpolation=cv2.INTER_NEAREST)
             resized_top = cv2.resize(frame, (LED_COUNT_TOP, 9), interpolation=cv2.INTER_NEAREST)
             resized_right = cv2.resize(frame, (9, LED_COUNT_RIGHT), interpolation=cv2.INTER_NEAREST)
@@ -109,6 +109,8 @@ def get_dominant_color(q_in, q_out):
             pixels.fill((0,0,0))
             pixels.show()
             exit()
+        except mp.queues.Empty:
+            pass
 
 
 
@@ -117,7 +119,7 @@ def update_leds(q):
     """ LEDs aktualisieren """
     while True:
         try:
-            colors = q.get()
+            colors = q.get_nowait()
             colors_left = colors[0]
             colors_top = colors[1]
             colors_right = colors[2]
@@ -146,6 +148,8 @@ def update_leds(q):
             pixels.fill((0,0,0))
             pixels.show()
             exit()
+        except mp.queues.Empty:
+            pass
 
 
 # starts all processes
