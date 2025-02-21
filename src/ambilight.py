@@ -16,8 +16,8 @@ LED_COUNT_LEFT = data["count_left"]
 LED_COUNT_TOP = data["count_top"]
 LED_COUNT_RIGHT = data["count_right"]
 LED_COUNT_BOTTOM = data["count_bottom"]
-LED_BRIGHTNESS = data["brightness"]
 LED_COUNT = LED_COUNT_BOTTOM + LED_COUNT_RIGHT + LED_COUNT_TOP + LED_COUNT_LEFT
+LED_BRIGHTNESS = data["brightness"]
 LED_OFFSET = data["offset"]
 PIN = board.D18
 
@@ -30,12 +30,13 @@ def update_variables():
             with open("config.json", "r") as file:
                 data = json.load(file)
 
+            global LED_COUNT_LEFT, LED_COUNT_TOP, LED_COUNT_RIGHT, LED_COUNT_BOTTOM, LED_COUNT, LED_BRIGHTNESS, LED_OFFSET
             LED_COUNT_LEFT = data["count_left"]
             LED_COUNT_TOP = data["count_top"]
             LED_COUNT_RIGHT = data["count_right"]
             LED_COUNT_BOTTOM = data["count_bottom"]
-            LED_BRIGHTNESS = data["brightness"]
             LED_COUNT = LED_COUNT_BOTTOM + LED_COUNT_RIGHT + LED_COUNT_TOP + LED_COUNT_LEFT
+            LED_BRIGHTNESS = data["brightness"]
             LED_OFFSET = data["offset"]
         except KeyboardInterrupt:
             pixels.fill((0,0,0))
@@ -124,6 +125,8 @@ def update_leds(q):
     """ LEDs aktualisieren """
     while True:
         try:
+            global old_pixels, new_pixels
+
             colors = q.get_nowait()
             colors_left = colors[0]
             colors_top = colors[1]
@@ -157,6 +160,8 @@ def update_leds(q):
 
 # starts all processes
 if __name__ == "__main__":
+    print("Started Ambilight")
+
     # queue elements
     q_screen = mp.Queue()
     q_colors = mp.Queue()
@@ -178,5 +183,3 @@ if __name__ == "__main__":
     p_get_screen.join()
     p_dominant_colors.join()
     p_update_leds.join()
-
-    print("Started ambilight.py")
