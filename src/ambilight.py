@@ -141,8 +141,6 @@ def update_leds(q):
                     new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
             pixels[:] = get_smooth_color(old_pixels, new_pixels)
             old_pixels[:] = pixels
-
-            pixels[:] = np.roll(pixels, -LED_OFFSET)
             pixels.show()
         except KeyboardInterrupt:
             pixels.fill((0,0,0))
