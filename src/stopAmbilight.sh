@@ -1,5 +1,6 @@
 APP_NAME=ambilight
 PATTERN="${APP_NAME}.py"
+AUS="aus.py"
 PID=$(pgrep -f -d ',' ${PATTERN})
 COUNT=$(pgrep -fc ${PATTERN})
 
@@ -20,6 +21,7 @@ done
 if [ ${COUNT} -eq 0 ]
 then
     echo Could not find any running instances of ${PATTERN}
+    python3 $AUS
     exit
 fi
 
@@ -28,6 +30,7 @@ if [ ${COUNT} -eq 1 ]
 then
     echo Killing instance of ${PATTERN} with pid ${PID}.
     pkill -f ${PATTERN}
+    python3 $AUS
 fi
 
 # multiple instances
@@ -35,6 +38,7 @@ if [ ${COUNT} -gt 1 ]
 then
     echo Killing ${COUNT} instances of ${PATTERN} with pids \[${PID}\].
     pkill -f ${PATTERN}
+    python3 $AUS
 fi
 
 # set colors (or not)

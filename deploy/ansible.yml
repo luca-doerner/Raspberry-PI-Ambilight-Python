@@ -2,18 +2,49 @@
   hosts: raspberrypi
   become: yes
   tasks:
+################## Stop Application ###########################################
+    - name: Stopping Application...
+      block:
+        - name: Stopping Application...
+          shell:
+            chdir: /home/luca/Ambilight/
+            removes: ./stopAmbilight.sh
+            cmd: ./stopAmbilight.sh -c
+          register: stopOut
+        - name: Output of stopAmbilight.sh
+          debug: 
+            var: stop
+          vars:
+            stop:
+              output: "{{stopOut.stdout_lines}}"
+              error: "{{stopOut.stderr_lines}}"
+      rescue:
+        - name: Output errors of stopAmbilight.sh
+          debug: 
+            var: stop
+          vars:
+            start: "{{stopOut.stderr_lines}}"
+############## Deploy Applications ############################################
+    - name: Deploy aus application
+      copy:
+        src: ../src/aus.py
+        dest: /home/luca/Ambilight/
+        owner: luca
+        group: luca
     - name: Deploy built application
       copy:
         src: ../src/ambilight.py
         dest: /home/luca/Ambilight/
         owner: luca
         group: luca
+############## Deploy config.json #############################################
     - name: Deploy JSON
       copy:
         src: ../src/config.json
         dest: /home/luca/Ambilight/
         owner: luca
         group: luca
+############## Deploy controller bash scripts #################################
     - name: Deploy startAmbilight.sh
       copy:
         src: ../src/startAmbilight.sh
@@ -28,3 +59,31 @@
         mode: '0777'
         owner: luca
         group: luca
+    - name: Deploy rebootAmbilight.sh
+      copy:
+        src: ../src/rebootAmbilight.sh
+        dest: /home/luca/Ambilight/
+        mode: '0777'
+        owner: luca
+        group: luca
+############## Start Application ##############################################
+    - name: Starting Application...
+      block:
+        - name: Starting Application...
+          shell:
+            chdir: /home/luca/Ambilight/
+            cmd: ./startAmbilight.sh -c
+          register: startOut
+        - name: Output of startAmbilight.sh
+          debug: 
+            var: start
+          vars:
+            start:
+              output: "{{startOut.stdout_lines}}"
+              error: "{{startOut.stderr_lines}}"
+      rescue:
+        - name: Output errors of startAmbilight.sh
+          debug: 
+            var: start
+          vars:
+            start: "{{startOut.stderr_lines}}"

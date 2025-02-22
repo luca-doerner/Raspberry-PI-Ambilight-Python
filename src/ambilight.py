@@ -51,7 +51,7 @@ def bgr_to_rgb(color):
 
 #make color transitions smooth + darker colors are made even darker
 def get_smooth_color(c1, c2, ratio=0.7):
-    c2 = c2*(np.power(np.mean(c2, axis=1, keepdims=True)/255, 2))*LED_BRIGHTNESS
+    c2 = c2*(np.power(np.mean(c2, axis=1, keepdims=True)/255, 0.2))*LED_BRIGHTNESS
     smooth_color = np.rint(np.array(c1)*ratio + np.array(c2)*(1-ratio)).astype(int).tolist()
     return smooth_color
 
@@ -128,6 +128,9 @@ def update_leds(q):
             global old_pixels, new_pixels
 
             colors = q.get_nowait()
+            if(np.mean(colors[0]) <= 0.5):
+                old_pixels=[[0,0,0]] * LED_COUNT
+
             colors_left = colors[0]
             colors_top = colors[1]
             colors_right = colors[2]
@@ -147,6 +150,8 @@ def update_leds(q):
                 else:
                     color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
                     new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+                if(np.mean(new_pixels[i]) <= 0.5):
+                    old_pixels[i] == [0,0,0]
             pixels[:] = get_smooth_color(old_pixels, new_pixels)
             old_pixels[:] = pixels
             pixels.show()
