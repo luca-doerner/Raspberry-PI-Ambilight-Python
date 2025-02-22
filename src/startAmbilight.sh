@@ -57,7 +57,7 @@ else
         STARTED=$(grep "Started.*" ${NOHUP_OUT})
         SHUTDOWN=$(grep "Shutdown completed" ${NOHUP_OUT})
         i=0
-        while [[ -z $STARTED && -z SHUTDOWN && ${i} -lt 19 ]]
+        while [[ -z $STARTED && -z $SHUTDOWN && ${i} -lt 19 ]]
         do
             echo "Waiting for Ambilight to start (timeout in $((60-3*(i+1))) seconds)..."
             sleep 3
