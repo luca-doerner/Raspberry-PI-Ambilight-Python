@@ -184,7 +184,7 @@ if __name__ == "__main__":
     # queue elements
     q_screen = mp.Queue()
     q_colors = mp.Queue()
-    q_new_colors = mp.Queue
+    q_new_colors = mp.Queue()
 
     # processes
     p_get_screen = mp.Process(target=get_screen, args=(q_screen,))
