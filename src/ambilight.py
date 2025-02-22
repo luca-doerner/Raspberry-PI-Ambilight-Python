@@ -207,7 +207,12 @@ if __name__ == "__main__":
 
     # order in which processes get started
     p_update_variables.join()
+    print("Started Update Variables with PID {p_update_variables.pid}")
     p_get_screen.join()
+    print("Started Get Screen with PID {p_get_screen.pid}")
     p_dominant_colors.join()
+    print("Started Get Dominant Colors with PID {p_dominant_colors.pid}")
     p_calc_color_arr.join()
+    print("Started Calculate Color Array with PID {p_calc_color_arr.pid}")
     p_smooth_colors.join()
+    print("Started Smooth Colors with PID {p_smooth_colors.pid}")
