@@ -88,7 +88,7 @@ def get_screen(q):
                 exit()
             q.put(frame)
             time.sleep(WAIT)
-        except KeyboardInterrupt:
+        except Exception:
             pixels.fill((0,0,0))
             pixels.show()
             exit()
@@ -100,15 +100,15 @@ def get_screen(q):
 def get_dominant_color(q_in, q_out):
     while True:
         try:
-            frame = q_in.get_nowait()
+            frame = q_in.get()
             resized_left = cv2.resize(frame, (9, LED_COUNT_LEFT), interpolation=cv2.INTER_NEAREST)
             resized_top = cv2.resize(frame, (LED_COUNT_TOP, 9), interpolation=cv2.INTER_NEAREST)
             resized_right = cv2.resize(frame, (9, LED_COUNT_RIGHT), interpolation=cv2.INTER_NEAREST)
             resized_bottom = cv2.resize(frame, (LED_COUNT_BOTTOM, 9), interpolation=cv2.INTER_NEAREST)
             resized = [resized_left, resized_top, resized_right, resized_bottom]
-            q_out.put_nowait(resized)
+            q_out.put(resized)
             time.sleep(WAIT)
-        except KeyboardInterrupt:
+        except Exception:
             pixels.fill((0,0,0))
             pixels.show()
             exit()
@@ -124,7 +124,7 @@ def calc_color_arr(q_in, q_out):
         try:
             global old_pixels, new_pixels
 
-            colors = q_in.get_nowait()
+            colors = q_in.get()
             if(np.mean(colors[0]) <= 0.5):
                 old_pixels=[[0,0,0]] * LED_COUNT
 
@@ -135,8 +135,8 @@ def calc_color_arr(q_in, q_out):
 
             new_pixels[:LED_COUNT_LEFT] = colors_left[:, 1][::-1]
             new_pixels[LED_COUNT_LEFT:LED_COUNT_LEFT+LED_COUNT_TOP] = colors_top[1, :]
-            new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP:LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT] = colors_right[:, 1]
-            new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT:LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT+LED_COUNT_BOTTOM] = colors_bottom[1, :][::-1]
+            new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP:LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT] = colors_right[:, 7]
+            new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT:LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT+LED_COUNT_BOTTOM] = colors_bottom[7, :][::-1]
 
             new_pixels = np.array(new_pixels)
             new_pixels = bgr_to_rgb(new_pixels)
@@ -155,8 +155,8 @@ def calc_color_arr(q_in, q_out):
 #                else:
 #                    color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
 #                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-            q_out.put_nowait(new_pixels)
-        except KeyboardInterrupt:
+            q_out.put(new_pixels)
+        except Exception:
             pixels.fill((0,0,0))
             pixels.show()
             exit()
@@ -168,13 +168,13 @@ def get_smooth_color(q, ratio=0.7):
     while True:
         try:
             c1 = old_pixels
-            c2 = q.get_nowait()
+            c2 = q.get()
             c2 = c2*(np.power(np.mean(c2, axis=1, keepdims=True)/255, 0.2))*LED_BRIGHTNESS
             smooth_color = np.rint(np.array(c1)*ratio + np.array(c2)*(1-ratio)).astype(int).tolist()
             pixels[:] = smooth_color
             old_pixels[:] = pixels
             pixels.show()
-        except KeyboardInterrupt:
+        except Exception:
             pixels.fill((0,0,0))
             pixels.show()
             exit()
