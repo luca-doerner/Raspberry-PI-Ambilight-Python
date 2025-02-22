@@ -1,5 +1,6 @@
 import board
 import neopixel
+import json
 
 # LED configuration
 with open("config.json", "r") as file:
