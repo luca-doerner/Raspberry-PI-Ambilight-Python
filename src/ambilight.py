@@ -49,11 +49,7 @@ def update_variables():
 def bgr_to_rgb(color):
     return (round(color[2]), round(color[1]), round(color[0]))
 
-#make color transitions smooth + darker colors are made even darker
-def get_smooth_color(c1, c2, ratio=0.7):
-    c2 = c2*(np.power(np.mean(c2, axis=1, keepdims=True)/255, 0.2))*LED_BRIGHTNESS
-    smooth_color = np.rint(np.array(c1)*ratio + np.array(c2)*(1-ratio)).astype(int).tolist()
-    return smooth_color
+
 
 old_pixels = [[0,0,0]] * LED_COUNT
 new_pixels = [[0,0,0]] * LED_COUNT
@@ -121,13 +117,13 @@ def get_dominant_color(q_in, q_out):
 
 
 # updates all the LEDS with the new "smooth" color
-def update_leds(q):
+def calc_color_arr(q_in, q_out):
     """ LEDs aktualisieren """
     while True:
         try:
             global old_pixels, new_pixels
 
-            colors = q.get_nowait()
+            colors = q_in.get_nowait()
             if(np.mean(colors[0]) <= 0.5):
                 old_pixels=[[0,0,0]] * LED_COUNT
 
@@ -136,23 +132,43 @@ def update_leds(q):
             colors_right = colors[2]
             colors_bottom = colors[3]
 
-            for i in range(LED_COUNT):
-                #LEDS for right side
-                if(i >= LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT):
-                    color = colors_bottom[7, (LED_COUNT_BOTTOM-1) - (i - (LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT))]
-                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-                elif(i >= LED_COUNT_LEFT+LED_COUNT_TOP):
-                    color = colors_right[i - (LED_COUNT_LEFT+LED_COUNT_TOP), 7]
-                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-                elif(i >= LED_COUNT_LEFT):
-                    color = colors_top[1, i - LED_COUNT_LEFT]
-                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-                else:
-                    color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
-                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-            pixels[:] = get_smooth_color(old_pixels, new_pixels)
-            old_pixels[:] = pixels
+            new_pixels[:] = colors_left[:, 1][::-1]
+            new_pixels[LED_COUNT_LEFT:] = colors_top[1, :]
+            new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP:] = colors_right[:, 1]
+            new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT:] = colors_bottom[1, :][::-1]
+
+#            for i in range(LED_COUNT):
+#                #LEDS for right side
+#                if(i >= LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT):
+#                    color = colors_bottom[7, (LED_COUNT_BOTTOM-1) - (i - (LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT))]
+#                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+#                elif(i >= LED_COUNT_LEFT+LED_COUNT_TOP):
+#                    color = colors_right[i - (LED_COUNT_LEFT+LED_COUNT_TOP), 7]
+#                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+#                elif(i >= LED_COUNT_LEFT):
+#                    color = colors_top[1, i - LED_COUNT_LEFT]
+#                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+#                else:
+#                    color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
+#                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
+            q_out.put(new_pixels)
+        except KeyboardInterrupt:
+            pixels.fill((0,0,0))
             pixels.show()
+            exit()
+        except mp.queues.Empty:
+            pass
+
+#make color transitions smooth + darker colors are made even darker
+def get_smooth_color(q, ratio=0.7):
+    while True:
+        try:
+            c1 = old_pixels
+            c2 = q.get()
+            c2 = c2*(np.power(np.mean(c2, axis=1, keepdims=True)/255, 0.2))*LED_BRIGHTNESS
+            smooth_color = np.rint(np.array(c1)*ratio + np.array(c2)*(1-ratio)).astype(int).tolist()
+            pixels[:] = smooth_color
+            old_pixels[:] = pixels
         except KeyboardInterrupt:
             pixels.fill((0,0,0))
             pixels.show()
@@ -168,21 +184,25 @@ if __name__ == "__main__":
     # queue elements
     q_screen = mp.Queue()
     q_colors = mp.Queue()
+    q_new_colors = mp.Queue
 
     # processes
     p_get_screen = mp.Process(target=get_screen, args=(q_screen,))
     p_dominant_colors = mp.Process(target=get_dominant_color, args=(q_screen, q_colors))
-    p_update_leds = mp.Process(target=update_leds, args=(q_colors,))
+    p_calc_color_arr = mp.Process(target=calc_color_arr, args=(q_colors, q_new_colors))
+    p_smooth_colors = mp.Process(target=get_smooth_color, args=(q_new_colors,))
     p_update_variables = mp.Process(target=update_variables)
 
     # start of process
     p_get_screen.start()
     p_dominant_colors.start()
-    p_update_leds.start()
+    p_calc_color_arr.start()
+    p_smooth_colors.start()
     p_update_variables.start()
 
     # order in which processes get started
     p_update_variables.join()
     p_get_screen.join()
     p_dominant_colors.join()
-    p_update_leds.join()
+    p_calc_color_arr.join()
+    p_smooth_colors.join()
