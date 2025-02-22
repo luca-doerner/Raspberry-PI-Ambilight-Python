@@ -151,7 +151,7 @@ def calc_color_arr(q_in, q_out):
 #                else:
 #                    color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
 #                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-            q_out.put(new_pixels)
+            q_out.put_nowait(new_pixels)
         except KeyboardInterrupt:
             pixels.fill((0,0,0))
             pixels.show()
@@ -164,7 +164,7 @@ def get_smooth_color(q, ratio=0.7):
     while True:
         try:
             c1 = old_pixels
-            c2 = q.get()
+            c2 = q.get_nowait()
             c2 = c2*(np.power(np.mean(c2, axis=1, keepdims=True)/255, 0.2))*LED_BRIGHTNESS
             smooth_color = np.rint(np.array(c1)*ratio + np.array(c2)*(1-ratio)).astype(int).tolist()
             pixels[:] = smooth_color
