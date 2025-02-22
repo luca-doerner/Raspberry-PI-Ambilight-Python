@@ -9,7 +9,8 @@
           shell:
             chdir: /home/luca/Ambilight/
             removes: ./stopAmbilight.sh
-            cmd: ./stopAmbilight.sh -c
+            cmd: /home/luca/Ambilight/bin/python ./stopAmbilight.sh -c
+            executable: /bin/bash
           register: stopOut
         - name: Output of stopAmbilight.sh
           debug: 
@@ -73,6 +74,7 @@
           shell:
             chdir: /home/luca/Ambilight/
             cmd: /home/luca/Ambilight/bin/python ./startAmbilight.sh -c
+            executable: /bin/bash
           register: startOut
         - name: Output of startAmbilight.sh
           debug: 
