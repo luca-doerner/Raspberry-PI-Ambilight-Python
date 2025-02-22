@@ -46,8 +46,9 @@ def update_variables():
 
 
 # turns a bgr color a rgb color
-def bgr_to_rgb(color):
-    return (round(color[2]), round(color[1]), round(color[0]))
+def bgr_to_rgb(colors):
+    colors[:, [0, 2]] = colors[:, [0, 2]]
+    return colors
 
 
 
@@ -132,17 +133,12 @@ def calc_color_arr(q_in, q_out):
             colors_right = colors[2]
             colors_bottom = colors[3]
 
-            for i in range(LED_COUNT_LEFT):
-                color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
-                new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-            
-            print(new_pixels)
-
             new_pixels[:] = colors_left[:, 1][::-1]
-            print(new_pixels)
             new_pixels[LED_COUNT_LEFT:] = colors_top[1, :]
             new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP:] = colors_right[:, 1]
             new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT:] = colors_bottom[1, :][::-1]
+
+            new_pixels = bgr_to_rgb(new_pixels)
 
 #            for i in range(LED_COUNT):
 #                #LEDS for right side
