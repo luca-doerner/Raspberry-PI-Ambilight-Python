@@ -141,8 +141,6 @@ def calc_color_arr(q_in, q_out):
             new_pixels = np.array(new_pixels)
             new_pixels = bgr_to_rgb(new_pixels)
 
-            print(new_pixels)
-
 #            for i in range(LED_COUNT):
 #                #LEDS for right side
 #                if(i >= LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT):
@@ -157,7 +155,7 @@ def calc_color_arr(q_in, q_out):
 #                else:
 #                    color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
 #                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-            q_out.put_nowait(new_pixels.tolist())
+            q_out.put_nowait(new_pixels)
         except KeyboardInterrupt:
             pixels.fill((0,0,0))
             pixels.show()
