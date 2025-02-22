@@ -8,6 +8,7 @@
 #settings
 PYTHON_FILE=ambilight.py
 NOHUP_OUT=/home/luca/Ambilight/ambilight-nohup.out
+VENV=/home/luca/Ambilight/bin/activate
 
 # option variables
 FOREGROUND=false
@@ -17,6 +18,8 @@ DEBUG=""
 
 #echo function to stderr
 echoerr() { echo -e "$@" 1>&2; }
+
+source $VENV
 
 # get options
 while getopts fsqcd opt
@@ -55,7 +58,7 @@ else
         sleep 2
         PID=$(pgrep -f $PYTHON_FILE)
         STARTED=$(grep "Started.*" ${NOHUP_OUT})
-        SHUTDOWN=$(grep "Shutdown completed" ${NOHUP_OUT})
+        SHUTDOWN=$(grep "Fehler: HDMI-Capture-Device 1 nicht gefunden" ${NOHUP_OUT})
         i=0
         while [[ -z $STARTED && -z $SHUTDOWN && ${i} -lt 19 ]]
         do

@@ -3,11 +3,14 @@ PATTERN="${APP_NAME}.py"
 AUS="aus.py"
 PID=$(pgrep -f -d ',' ${PATTERN})
 COUNT=$(pgrep -fc ${PATTERN})
+VENV=/home/luca/Ambilight/bin/activate
 
 COLORS=true
 
 #echo function to stderr
 echoerr() { echo -e "$@" 1>&2; }
+
+source $VENV
 
 # supress colors if -c is used
 while getopts c opt
