@@ -150,8 +150,6 @@ def update_leds(q):
                 else:
                     color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
                     new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-                if(np.mean(new_pixels[i]) <= 0.5):
-                    old_pixels[i] == [0,0,0]
             pixels[:] = get_smooth_color(old_pixels, new_pixels)
             old_pixels[:] = pixels
             pixels.show()
