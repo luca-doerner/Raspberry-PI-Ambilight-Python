@@ -169,6 +169,7 @@ def get_smooth_color(q, ratio=0.7):
             smooth_color = np.rint(np.array(c1)*ratio + np.array(c2)*(1-ratio)).astype(int).tolist()
             pixels[:] = smooth_color
             old_pixels[:] = pixels
+            pixels.show()
         except KeyboardInterrupt:
             pixels.fill((0,0,0))
             pixels.show()
