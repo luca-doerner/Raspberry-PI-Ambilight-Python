@@ -71,21 +71,25 @@
     - name: Starting Application...
       block:
         - name: Starting Application...
-          shell:
+          shell: |
+            source /home/luca/Ambilight/bin/activate
+            ./startAmbilight.sh -c
+          args:
             chdir: /home/luca/Ambilight/
-            cmd: /home/luca/Ambilight/bin/python ./startAmbilight.sh -c
-            executable: /bin/bash
+            executable: /bin/bash  # Ensure we're using Bash, not sh
           register: startOut
+
         - name: Output of startAmbilight.sh
           debug: 
             var: start
           vars:
             start:
-              output: "{{startOut.stdout_lines}}"
-              error: "{{startOut.stderr_lines}}"
+              output: "{{ startOut.stdout_lines }}"
+              error: "{{ startOut.stderr_lines }}"
+
       rescue:
         - name: Output errors of startAmbilight.sh
           debug: 
             var: start
           vars:
-            start: "{{startOut.stderr_lines}}"
+            start: "{{ startOut.stderr_lines }}"
