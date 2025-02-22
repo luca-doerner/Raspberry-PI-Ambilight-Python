@@ -133,12 +133,15 @@ def calc_color_arr(q_in, q_out):
             colors_right = colors[2]
             colors_bottom = colors[3]
 
-            new_pixels[:] = colors_left[:, 1][::-1]
-            new_pixels[LED_COUNT_LEFT:] = colors_top[1, :]
-            new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP:] = colors_right[:, 1]
-            new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT:] = colors_bottom[1, :][::-1]
+            new_pixels[:LED_COUNT_LEFT] = colors_left[:, 1][::-1]
+            new_pixels[LED_COUNT_LEFT:LED_COUNT_LEFT+LED_COUNT_TOP] = colors_top[1, :]
+            new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP:LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT] = colors_right[:, 1]
+            new_pixels[LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT:LED_COUNT_LEFT+LED_COUNT_TOP+LED_COUNT_RIGHT+LED_COUNT_BOTTOM] = colors_bottom[1, :][::-1]
 
+            new_pixels = np.array(new_pixels)
             new_pixels = bgr_to_rgb(new_pixels)
+
+            print(new_pixels)
 
 #            for i in range(LED_COUNT):
 #                #LEDS for right side
@@ -154,7 +157,7 @@ def calc_color_arr(q_in, q_out):
 #                else:
 #                    color = colors_left[(LED_COUNT_LEFT-1) - i, 1]
 #                    new_pixels[i] = bgr_to_rgb(color.tolist())  # Pass as list
-            q_out.put_nowait(new_pixels)
+            q_out.put_nowait(new_pixels.tolist())
         except KeyboardInterrupt:
             pixels.fill((0,0,0))
             pixels.show()
