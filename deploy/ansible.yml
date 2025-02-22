@@ -72,8 +72,7 @@
         - name: Starting Application...
           shell:
             chdir: /home/luca/Ambilight/
-            cmd: source bin/activate
-            cmd: ./startAmbilight.sh -c
+            cmd: /home/luca/Ambilight/bin/activate ./startAmbilight.sh -c
           register: startOut
         - name: Output of startAmbilight.sh
           debug: 
