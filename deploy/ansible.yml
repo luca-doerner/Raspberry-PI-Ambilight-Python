@@ -8,8 +8,8 @@
         - name: Stopping Application...
           shell:
             chdir: /home/luca/Ambilight/
-            removes: ./stopAmbilight.sh
-            cmd: /home/luca/Ambilight/bin/python ./stopAmbilight.sh -c
+            removes: stopAmbilight.sh
+            cmd: /home/luca/Ambilight/bin/python stopAmbilight.sh -c
             executable: /bin/bash
           register: stopOut
         - name: Output of stopAmbilight.sh
