@@ -1,3 +1,6 @@
+#!/bin/bash
+
+#settings
 APP_NAME=ambilight
 PATTERN="${APP_NAME}.py"
 AUS="aus.py"
