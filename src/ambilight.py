@@ -47,7 +47,7 @@ def update_variables():
 
 # turns a bgr color a rgb color
 def bgr_to_rgb(colors):
-    colors[:, [0, 2]] = colors[:, [0, 2]]
+    colors[:, [0, 2]] = colors[:, [2, 0]]
     return colors
 
 
