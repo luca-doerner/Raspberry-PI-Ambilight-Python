@@ -73,6 +73,8 @@
           shell:
             chdir: /home/luca/Ambilight/
             cmd: /home/luca/Ambilight/bin/activate ./startAmbilight.sh -c
+            owner: root
+            group: root
           register: startOut
         - name: Output of startAmbilight.sh
           debug: 
