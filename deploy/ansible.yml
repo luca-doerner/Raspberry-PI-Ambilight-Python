@@ -2,11 +2,6 @@
   hosts: raspberrypi
   become: yes
   tasks:
-################## Source VM ##################################################
-    - name: Source VM
-      shell: |
-        cd /home/luca/Ambilight
-        source bin/activate
 ################## Stop Application ###########################################
     - name: Stopping Application...
       block:
@@ -77,6 +72,7 @@
         - name: Starting Application...
           shell:
             chdir: /home/luca/Ambilight/
+            cmd: source bin/activate
             cmd: ./startAmbilight.sh -c
           register: startOut
         - name: Output of startAmbilight.sh
