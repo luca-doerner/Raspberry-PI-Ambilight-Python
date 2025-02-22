@@ -6,10 +6,12 @@
     - name: Stopping Application...
       block:
         - name: Stopping Application...
-          shell:
+          shell: |
+            source /home/luca/Ambilight/bin/activate
+            ./stopAmbilight.sh -c
+          args:
             chdir: /home/luca/Ambilight/
-            removes: stopAmbilight.sh
-            cmd: /home/luca/Ambilight/bin/python stopAmbilight.sh -c
+            removes: ./stopAmbilight.sh
             executable: /bin/bash
           register: stopOut
         - name: Output of stopAmbilight.sh
